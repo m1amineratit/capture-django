@@ -1,3 +1,8 @@
 from django.contrib import admin
+from .models import Image
 
-# Register your models here.
+class ImageAdmin(admin.ModelAdmin):
+    list_display = ('id', 'img', 'created_at')  # Make sure 'created_at' is included here
+    search_fields = ('img',)
+
+admin.site.register(Image, ImageAdmin)
