@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-14i8km9cj6x9tqgml&xzepuc$a#%24wq_$*jg=m8ft_)whf0n4
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'www.dwasalouatki.up.railway.app']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'dwasalouatki.up.railway.app']
 
 
 CSRF_COOKIE_SECURE = True
