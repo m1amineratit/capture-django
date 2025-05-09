@@ -30,7 +30,7 @@ ALLOWED_HOSTS = ['localhost' , '127.0.0.1', 'www.dwasalouatki.up.railway.app']
 
 
 CSRF_COOKIE_SECURE = True
-CSRF_TRUSTED_ORIGINS = ['https://getdailydrink-production.up.railway.app' , 'https://getdailydrink.xyz' , 'https://www.getdailydrink.xyz', 'https://dwasalouatki.up.railway.app/'] 
+CSRF_TRUSTED_ORIGINS = ['https://dwasalouatki.up.railway.app/'] 
 
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
 SITE_ID =1
