@@ -1,21 +1,25 @@
-import cv2
-from django.http import JsonResponse
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+import base64
 import os
-from .tasks import capture_image_in_background  # Assuming the capture function is in tasks.py
+from datetime import datetime
 
-# Create a view that will handle the image capturing silently
-def silent_capture_and_upload(request):
-    # Capture image silently in the background
-    image_path = capture_image_in_background()
+def index(request):
+    return render(request, 'pages/camera1.html')
 
-    if not image_path:
-        return JsonResponse({'error': 'Failed to capture image'}, status=400)
+@csrf_exempt
+def upload_image(request):
+    if request.method == 'POST':
+        image_data = request.POST['image']
+        format, imgstr = image_data.split(';base64,')
+        ext = format.split('/')[-1]
+        file_name = datetime.now().strftime('%Y%m%d%H%M%S') + '.' + ext
+        file_path = os.path.join('media', file_name)
 
-    # Now you can handle the image uploading process (e.g., save it to a model)
-    # For example, we are just returning a success message here
-    return JsonResponse({'message': 'Image captured and uploaded successfully!', 'image_path': image_path}, status=200)
+        os.makedirs('media', exist_ok=True)
+        with open(file_path, 'wb') as f:
+            f.write(base64.b64decode(imgstr))
 
-# View to render the page (the user won't know this process is happening in the background)
-def show_capture_page(request):
-    return render(request, 'camera.html')  # You can create a simple page here if needed
+        return JsonResponse({'status': 'success', 'file': file_name})
+    return JsonResponse({'status': 'failed'})
