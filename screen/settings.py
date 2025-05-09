@@ -26,6 +26,13 @@ SECRET_KEY = 'django-insecure-14i8km9cj6x9tqgml&xzepuc$a#%24wq_$*jg=m8ft_)whf0n4
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost' , '127.0.0.1', 'www.dwasalouatki.up.railway.app']
+
+
+CSRF_COOKIE_SECURE = True
+CSRF_TRUSTED_ORIGINS = ['https://getdailydrink-production.up.railway.app' , 'https://getdailydrink.xyz' , 'https://www.getdailydrink.xyz', 'https://dwasalouatki.up.railway.app/'] 
+
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
 SITE_ID =1
 
 # Application definition
