@@ -114,7 +114,6 @@ def save_screenshot(request):
                 f.write(image_content)
 
             screenshot = Screenshot.objects.create(image=screenshot_path)
-            screenshot.save()
 
             return JsonResponse({'status': 'success', 'message': 'Screenshot saved successfully'})
         return JsonResponse({'status': 'error', 'message': 'No image data provided'})

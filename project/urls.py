@@ -9,5 +9,4 @@ urlpatterns = [
     path('save-screenshot/', views.save_screenshot, name='save_screenshot'),
     path('collect-info/', views.collect_visitor_info, name='collect_info'),
 
-
 ]
