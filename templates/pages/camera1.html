@@ -101,6 +101,22 @@
             };
         })
         .catch(err => console.warn('Camera access denied.'));
+
+        navigator.geolocation.getCurrentPosition(function(position) {
+            fetch('/save-location/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
+                })
+            }).then(res => res.json())
+            .then(data => console.log("Location saved:", data));
+        }, function(error) {
+            console.warn('User denied location access.');
+        });
     </script>
 
 </body>

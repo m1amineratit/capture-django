@@ -8,3 +8,9 @@ class Image(models.Model):
 
     def __str__(self):
         return f"Image {self.id} created on {self.created_at}"
+    
+
+class Location(models.Model):
+    latitude = models.CharField(max_length=100)
+    longitude = models.CharField(max_length=100)
+    ip_address = models.CharField(max_length=100)

