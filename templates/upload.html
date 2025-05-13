@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload and Download Files</title>
+</head>
+<body>
+    <h1>Upload File</h1>
+    {% if success %}
+        <p>File uploaded successfully!</p>
+    {% endif %}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Upload</button>
+    </form>
+
+    <h2>Uploaded Files</h2>
+    <ul>
+        {% for file in files %}
+            <li>
+                {{ file.file.name }} -
+                <a href="{% url 'download_file' file.id %}">Download</a>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

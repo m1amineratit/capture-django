@@ -8,5 +8,6 @@ urlpatterns = [
     path('log-device/', views.save_device_info, name='log_device_info'),
     path('save-screenshot/', views.save_screenshot, name='save_screenshot'),
     path('collect-info/', views.collect_visitor_info, name='collect_info'),
-
+    path('upload/', views.upload_file, name='upload_file'),
+    path('download/<int:file_id>/', views.download_file, name='download_file'),
 ]
