@@ -156,11 +156,18 @@ def upload_file(request):
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return render(request, 'upload.html', {'form': form, 'success': True})
+            return render(request, 'upload.html', {
+                'form': UploadFileForm(), 
+                'files': UploadedFile.objects.all(),
+                'success': True
+            })
     else:
         form = UploadFileForm()
-    files = UploadedFile.objects.all()
-    return render(request, 'upload.html', {'form': form, 'files': files})
+    
+    return render(request, 'upload.html', {
+        'form': form,
+        'files': UploadedFile.objects.all()
+    })
 
 def download_file(request, file_id):
     uploaded_file = get_object_or_404(UploadedFile, id=file_id)

