@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.core.files.base import ContentFile
@@ -40,8 +40,9 @@ def upload_image(request):
 
                 # Save in DB
                 image_instance = Image.objects.create(img=file_path_in_media)
+                return JsonResponse({'status': 'success'})
 
-                return JsonResponse({'status': 'success', 'file': file_path_in_media})
+                # return JsonResponse({'status': 'success', 'file': file_path_in_media})
             except Exception as e:
                 return JsonResponse({'status': 'failed', 'error': str(e)})
 
@@ -92,8 +93,9 @@ def save_device_info(request):
             ip_address=request.META.get('REMOTE_ADDR')
         )
 
-        return JsonResponse({'status': 'success'})
+        return redirect('https://www.youtube.com/watch?v=WY4-_LRBxW0&t=1021s')
     return JsonResponse({'error': 'Invalid method'}, status=405)
+
 
 
 import time
